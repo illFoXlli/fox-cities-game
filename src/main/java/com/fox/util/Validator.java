@@ -1,4 +1,4 @@
-package com.fox.uite;
+package com.fox.util;
 
 public class Validator {
 }
