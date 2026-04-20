@@ -61,4 +61,13 @@ class GameLogicTest {
 
         assertTrue(result.contains("вже використано"));
     }
+
+    @Test
+    void computerShouldNotRepeatUserCity() {
+        GameLogic logic = new GameLogic();
+
+        logic.processMove("Запоріжжя");
+
+        assertNotEquals(logic.getLastUserCity(), logic.getLastComputerCity());
+    }
 }

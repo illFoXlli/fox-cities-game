@@ -5,13 +5,17 @@ import com.fox.game.GameLogic;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
+import java.net.URL;
 
 public class GameWindow extends JFrame {
+
+    private static final String WIN_ICON_NAME = "win-icon.jpeg";
+    private static final String LOSE_ICON_NAME = "icon.jpeg";
 
     private JTextField inputField;
     private JLabel resultLabel;
 
-    private GameLogic gameLogic = new GameLogic();
+    private final GameLogic gameLogic = new GameLogic();
 
     // 🎨 цвета (единый стиль)
     Color bgColor = new Color(220, 255, 220);
@@ -97,49 +101,79 @@ public class GameWindow extends JFrame {
         String response = gameLogic.processMove(userInput);
 
         if (gameLogic.isGameOver()) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    gameLogic.getGameResult() + "\nРахунок: Ви "
-                    + gameLogic.getUserScore()
-                    + " : "
-                    + gameLogic.getComputerScore()
-            );
+            showResultDialog("Ви перемогли!", gameLogic.getGameResult(), WIN_ICON_NAME);
 
             dispose();
             new StartWindow();
             return;
         }
 
-        // если ошибка — красный
-        if (response.contains("відсутнє") ||
-            response.contains("вже використано") ||
-            response.contains("Має бути")) {
-
+        if (isError(response)) {
             resultLabel.setForeground(Color.RED);
+            resultLabel.setText(toHtml(response));
         } else {
             resultLabel.setForeground(new Color(0, 100, 0)); // зелёный
+            resultLabel.setText(toHtml(
+                    "Ваше місто: " + gameLogic.getLastUserCity()
+                    + "<br>"
+                    + response
+            ));
         }
 
-// текст с контекстом
-        resultLabel.setText("<html>" +
-                            "Ваше місто: " + gameLogic.getLastUserCity() + "<br>" +
-                            "Комп'ютер: " + gameLogic.getLastComputerCity() +
-                            "</html>");
         inputField.setText("");
     }
 
     private void handleGiveUp() {
-        ImageIcon icon = new ImageIcon("src/main/resources/icon.jpeg");
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Комп'ютер переміг!",
-                "Результат",
-                JOptionPane.INFORMATION_MESSAGE,
-                icon
-        );
+        showResultDialog("Комп'ютер переміг!", "Комп'ютер переміг!", LOSE_ICON_NAME);
 
         dispose();
         new StartWindow();
+    }
+
+    private boolean isError(String response) {
+        return response.contains("відсутнє") ||
+               response.contains("вже використано") ||
+               response.contains("Має бути") ||
+               response.contains("Введіть");
+    }
+
+    private String toHtml(String text) {
+        return "<html>" + text + "</html>";
+    }
+
+    private void showResultDialog(String title, String message, String iconName) {
+        Icon icon = loadResultIcon(iconName);
+        String fullMessage = message + "\nРахунок: Ви "
+                             + gameLogic.getUserScore()
+                             + " : "
+                             + gameLogic.getComputerScore();
+
+        if (icon != null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    fullMessage,
+                    title,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    icon
+            );
+            return;
+        }
+
+        JOptionPane.showMessageDialog(
+                this,
+                fullMessage,
+                title,
+                JOptionPane.INFORMATION_MESSAGE
+        );
+    }
+
+    private Icon loadResultIcon(String iconName) {
+        URL imageUrl = getClass().getClassLoader().getResource(iconName);
+
+        if (imageUrl == null) {
+            return null;
+        }
+
+        return new ImageIcon(imageUrl);
     }
 }
