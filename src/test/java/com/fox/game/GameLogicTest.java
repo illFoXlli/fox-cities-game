@@ -70,4 +70,15 @@ class GameLogicTest {
 
         assertNotEquals(logic.getLastUserCity(), logic.getLastComputerCity());
     }
+
+    @Test
+    void shouldFinishGameWhenUserTypesGiveUp() {
+        GameLogic logic = new GameLogic();
+
+        logic.processMove("здаюсь");
+
+        assertTrue(logic.isGameOver());
+        assertTrue(logic.isUserGaveUp());
+        assertEquals("Комп'ютер переміг!", logic.getGameResult());
+    }
 }

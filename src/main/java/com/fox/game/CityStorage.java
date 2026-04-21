@@ -18,20 +18,19 @@ public class CityStorage {
             InputStream is = getClass().getClassLoader().getResourceAsStream("cities.txt");
 
             if (is == null) {
-                throw new RuntimeException("cities.txt not found");
+                throw new IllegalStateException("cities.txt not found");
             }
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String city = line.trim();
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String city = line.trim();
-
-                if (!city.isEmpty()) {
-                    cities.add(city);
+                    if (!city.isEmpty()) {
+                        cities.add(city);
+                    }
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,59 +1,73 @@
 package com.fox.ui;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 
 public class StartWindow extends JFrame {
 
-    public StartWindow() {
+    private static final long serialVersionUID = 1L;
 
+    private final Color bgColor = new Color(220, 255, 220);
+    private final Color buttonColor = new Color(120, 200, 120);
+    private final Color hoverColor = new Color(90, 180, 90);
+    private final Color borderColor = new Color(80, 160, 80);
+
+    public StartWindow() {
         setTitle("Cities Game");
         setSize(400, 140);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // 🎨 цвета
-        Color bgColor = new Color(220, 255, 220);
-        Color buttonColor = new Color(120, 200, 120);
-        Color hoverColor = new Color(90, 180, 90);
-        Color borderColor = new Color(80, 160, 80);
+        initUI();
 
-        // 🏷 заголовок
-        JLabel label = new JLabel("Welcome to Cities Game", SwingConstants.CENTER);
+        setVisible(true);
+    }
+
+    private void initUI() {
+        JLabel label = new JLabel("Вітаємо у грі \"Міста\"", SwingConstants.CENTER);
         label.setFont(new Font("Arial", Font.BOLD, 14));
 
-        // 🔘 кнопка
-        JButton startButton = new JButton("Start");
+        JButton startButton = new JButton("Почати");
         startButton.setFont(new Font("Arial", Font.BOLD, 14));
-
         startButton.addActionListener(e -> {
             new GameWindow();
             dispose();
         });
 
-        // Enter = кнопка
         getRootPane().setDefaultButton(startButton);
 
-        // ❌ отключаем стандартную отрисовку кнопки
-        startButton.setFocusPainted(false);
-        startButton.setBorderPainted(false);
-        startButton.setContentAreaFilled(false);
-        startButton.setOpaque(false);
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.setBackground(bgColor);
 
-        // 🟢 wrapper (он рисует кнопку)
+        panel.add(label, BorderLayout.CENTER);
+        panel.add(createButtonWrapper(startButton), BorderLayout.SOUTH);
+
+        add(panel);
+    }
+
+    private JPanel createButtonWrapper(JButton button) {
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setOpaque(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
         JPanel buttonWrapper = new JPanel(new BorderLayout());
         buttonWrapper.setBackground(buttonColor);
-        buttonWrapper.setBorder(BorderFactory.createLineBorder(
-                borderColor, 2, true
-        ));
-
-        // 🖱 курсор (ВАЖНО — на wrapper)
+        buttonWrapper.setBorder(BorderFactory.createLineBorder(borderColor, 2, true));
         buttonWrapper.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        startButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // 🌗 hover (на wrapper)
-        MouseAdapter hoverEffect = new java.awt.event.MouseAdapter() {
+        MouseAdapter hover = new MouseAdapter() {
             @Override
             public void mouseEntered(java.awt.event.MouseEvent e) {
                 buttonWrapper.setBackground(hoverColor);
@@ -65,22 +79,10 @@ public class StartWindow extends JFrame {
             }
         };
 
-        buttonWrapper.addMouseListener(hoverEffect);
-        startButton.addMouseListener(hoverEffect);
+        buttonWrapper.addMouseListener(hover);
+        button.addMouseListener(hover);
+        buttonWrapper.add(button);
 
-        // добавляем кнопку внутрь wrapper
-        buttonWrapper.add(startButton);
-
-        // 🧱 основная панель
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        panel.setBackground(bgColor);
-
-        panel.add(label, BorderLayout.CENTER);
-        panel.add(buttonWrapper, BorderLayout.SOUTH);
-
-        add(panel);
-
-        setVisible(true);
+        return buttonWrapper;
     }
 }

@@ -1,6 +1,9 @@
 package com.fox.game;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class GameLogic {
 
@@ -20,10 +23,14 @@ public class GameLogic {
 
     private String lastUserCity = null;
     private String lastComputerCity = null;
+    private boolean userGaveUp = false;
 
     public String processMove(String userCity) {
 
-        // 1. пустое
+        if (cities.isEmpty()) {
+            return "Список міст не знайдено або він порожній";
+        }
+
         if (userCity == null || userCity.isBlank()) {
             return "Введіть місто";
         }
@@ -34,12 +41,17 @@ public class GameLogic {
             return "Введіть місто";
         }
 
-        // 2. повтор
+        if (isGiveUp(userCityName)) {
+            gameOver = true;
+            userGaveUp = true;
+            gameResult = "Комп'ютер переміг!";
+            return "";
+        }
+
         if (usedCities.contains(normalizeKey(userCityName))) {
             return "Місто \"" + userCityName + "\" вже використано";
         }
 
-        // 3. проверка буквы (теперь ПРАВИЛЬНО)
         if (lastComputerCity != null) {
             char lastLetter = getLastChar(lastComputerCity);
 
@@ -48,21 +60,18 @@ public class GameLogic {
             }
         }
 
-        // 4. проверка списка
         String cityFromList = findCity(userCityName);
 
         if (cityFromList == null) {
             return "Місто \"" + userCityName + "\" відсутнє у списку";
         }
 
-        // ✔ сохраняем ход пользователя
         usedCities.add(normalizeKey(cityFromList));
         userScore++;
         lastUserCity = cityFromList;
 
         char lastLetter = getLastChar(cityFromList);
 
-        // 🤖 ход компьютера
         for (String city : cities) {
             if (!usedCities.contains(normalizeKey(city)) &&
                 Character.toLowerCase(city.charAt(0)) == lastLetter) {
@@ -75,7 +84,6 @@ public class GameLogic {
             }
         }
 
-        // 🏆 пользователь выиграл
         gameOver = true;
 
         gameResult = "Ви перемогли! Комп'ютер не знайшов місто на \""
@@ -100,6 +108,10 @@ public class GameLogic {
         return cityName.trim().toLowerCase(Locale.ROOT);
     }
 
+    private boolean isGiveUp(String userCityName) {
+        return normalizeKey(userCityName).replace("!", "").equals("здаюсь");
+    }
+
     private char getLastChar(String word) {
         if (word == null || word.isBlank()) {
             return ' ';
@@ -110,7 +122,7 @@ public class GameLogic {
         for (int i = lower.length() - 1; i >= 0; i--) {
             char c = lower.charAt(i);
 
-            if (c != 'ь' && c != 'й' && c != '\'') {
+            if (c != 'ь' && c != 'й' && c != '\'' && c != '’') {
                 return c;
             }
         }
@@ -140,5 +152,13 @@ public class GameLogic {
 
     public String getLastComputerCity() {
         return lastComputerCity;
+    }
+
+    public boolean hasCities() {
+        return !cities.isEmpty();
+    }
+
+    public boolean isUserGaveUp() {
+        return userGaveUp;
     }
 }
