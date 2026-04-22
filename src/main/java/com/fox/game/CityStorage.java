@@ -12,6 +12,9 @@ import java.util.Set;
 
 public class CityStorage {
 
+    private CityStorage() {
+    }
+
     public static List<String> loadCities() {
         Set<String> cities = new LinkedHashSet<>();
         InputStream is = CityStorage.class.getClassLoader().getResourceAsStream("cities.txt");

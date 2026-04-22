@@ -57,7 +57,6 @@ public class GameWindow extends JFrame {
     private static final String COMPUTER_WON_MESSAGE = "Комп'ютер переміг!";
     private static final String FONT_NAME_ARIAL = "Arial";
 
-
     public GameWindow() {
         setTitle("Cities Game");
         setSize(400, 500);

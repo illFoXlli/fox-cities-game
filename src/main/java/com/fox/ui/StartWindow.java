@@ -21,6 +21,8 @@ public class StartWindow extends JFrame {
     private final Color hoverColor = new Color(90, 180, 90);
     private final Color borderColor = new Color(80, 160, 80);
 
+    private static final String FONT_NAME_ARIAL = "Arial";
+
     public StartWindow() {
         setTitle("Cities Game");
         setSize(400, 140);
@@ -34,10 +36,10 @@ public class StartWindow extends JFrame {
 
     private void initUI() {
         JLabel label = new JLabel("Вітаємо у грі \"Міста\"", SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.BOLD, 14));
+        label.setFont(new Font(FONT_NAME_ARIAL, Font.BOLD, 14));
 
         JButton startButton = new JButton("Почати");
-        startButton.setFont(new Font("Arial", Font.BOLD, 14));
+        startButton.setFont(new Font(FONT_NAME_ARIAL, Font.BOLD, 14));
         startButton.addActionListener(e -> {
             new GameWindow();
             dispose();

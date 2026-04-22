@@ -29,6 +29,7 @@ public class GameLogic {
         if (cities.isEmpty()) {
             return error("Список міст не знайдено або він порожній");
         }
+
         if (userCity == null || userCity.isBlank()) {
             return error("Введіть місто");
         }
