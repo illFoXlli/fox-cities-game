@@ -1,6 +1,7 @@
 package com.fox.game;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -18,7 +19,7 @@ public class CityStorage {
             InputStream is = getClass().getClassLoader().getResourceAsStream("cities.txt");
 
             if (is == null) {
-                throw new IllegalStateException("cities.txt not found");
+                throw new CityStorageException("Файл cities.txt не знайдено");
             }
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
@@ -31,10 +32,11 @@ public class CityStorage {
                     }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            throw new CityStorageException("Не вдалося прочитати файл cities.txt", e);
         }
 
         return new ArrayList<>(cities);
     }
+
 }

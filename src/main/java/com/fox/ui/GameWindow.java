@@ -203,7 +203,15 @@ public class GameWindow extends JFrame {
     }
 
     private void handleGiveUp() {
-        finishGame(COMPUTER_WON_MESSAGE, COMPUTER_WON_MESSAGE, LOSE_ICON_NAME);
+        gameLogic.processMove("здаюсь");
+
+        if (gameLogic.isGameOver()) {
+            if (gameLogic.isUserGaveUp()) {
+                finishGame(COMPUTER_WON_MESSAGE, gameLogic.getGameResult(), LOSE_ICON_NAME);
+            } else {
+                finishGame("Ви перемогли!", gameLogic.getGameResult(), WIN_ICON_NAME);
+            }
+        }
     }
 
     private boolean isError(String response) {

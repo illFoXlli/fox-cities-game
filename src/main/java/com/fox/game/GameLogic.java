@@ -1,5 +1,7 @@
 package com.fox.game;
 
+import org.w3c.dom.ls.LSOutput;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -30,7 +32,6 @@ public class GameLogic {
         if (cities.isEmpty()) {
             return "Список міст не знайдено або він порожній";
         }
-
         if (userCity == null || userCity.isBlank()) {
             return "Введіть місто";
         }
