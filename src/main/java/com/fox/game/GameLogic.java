@@ -1,7 +1,5 @@
 package com.fox.game;
 
-import org.w3c.dom.ls.LSOutput;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -16,8 +14,7 @@ public class GameLogic {
     private final Set<String> usedCities = new HashSet<>();
 
     public GameLogic() {
-        CityStorage storage = new CityStorage();
-        cities = storage.loadCities();
+        cities = CityStorage.loadCities();
     }
 
     private int userScore = 0;
@@ -27,44 +24,50 @@ public class GameLogic {
     private String lastComputerCity = null;
     private boolean userGaveUp = false;
 
-    public String processMove(String userCity) {
+    public MoveResult processMove(String userCity) {
 
         if (cities.isEmpty()) {
-            return "Список міст не знайдено або він порожній";
+            return error("Список міст не знайдено або він порожній");
         }
         if (userCity == null || userCity.isBlank()) {
-            return "Введіть місто";
+            return error("Введіть місто");
         }
 
         String userCityName = userCity.trim();
 
         if (userCityName.isEmpty()) {
-            return "Введіть місто";
+            return error("Введіть місто");
         }
 
         if (isGiveUp(userCityName)) {
             gameOver = true;
             userGaveUp = true;
             gameResult = "Комп'ютер переміг!";
-            return "";
+            return new MoveResult(
+                    MoveStatus.COMPUTER_WON,
+                    gameResult,
+                    lastUserCity,
+                    lastComputerCity,
+                    gameOver
+            );
         }
 
         if (usedCities.contains(normalizeKey(userCityName))) {
-            return "Місто \"" + userCityName + "\" вже використано";
+            return error("Місто \"" + userCityName + "\" вже використано");
         }
 
         if (lastComputerCity != null) {
             char lastLetter = getLastChar(lastComputerCity);
 
             if (Character.toLowerCase(userCityName.charAt(0)) != lastLetter) {
-                return "Має бути місто на \"" + lastLetter + "\" (було: " + lastComputerCity + ")";
+                return error("Має бути місто на \"" + lastLetter + "\" (було: " + lastComputerCity + ")");
             }
         }
 
         String cityFromList = findCity(userCityName);
 
         if (cityFromList == null) {
-            return "Місто \"" + userCityName + "\" відсутнє у списку";
+            return error("Місто \"" + userCityName + "\" відсутнє у списку");
         }
 
         usedCities.add(normalizeKey(cityFromList));
@@ -81,7 +84,13 @@ public class GameLogic {
                 computerScore++;
                 lastComputerCity = city;
 
-                return "Комп'ютер: " + city;
+                return new MoveResult(
+                        MoveStatus.SUCCESS,
+                        "Комп'ютер: " + city,
+                        lastUserCity,
+                        lastComputerCity,
+                        gameOver
+                );
             }
         }
 
@@ -90,7 +99,23 @@ public class GameLogic {
         gameResult = "Ви перемогли! Комп'ютер не знайшов місто на \""
                      + lastLetter + "\"";
 
-        return "";
+        return new MoveResult(
+                MoveStatus.USER_WON,
+                gameResult,
+                lastUserCity,
+                lastComputerCity,
+                gameOver
+        );
+    }
+
+    private MoveResult error(String message) {
+        return new MoveResult(
+                MoveStatus.ERROR,
+                message,
+                lastUserCity,
+                lastComputerCity,
+                gameOver
+        );
     }
 
     private String findCity(String cityName) {

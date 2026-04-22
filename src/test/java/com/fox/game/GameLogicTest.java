@@ -10,18 +10,20 @@ class GameLogicTest {
     void shouldReturnErrorIfCityIsEmpty() {
         GameLogic logic = new GameLogic();
 
-        String result = logic.processMove("");
+        MoveResult result = logic.processMove("");
 
-        assertEquals("Введіть місто", result);
+        assertEquals(MoveStatus.ERROR, result.status());
+        assertEquals("Введіть місто", result.message());
     }
 
     @Test
     void shouldReturnErrorIfCityNotInList() {
         GameLogic logic = new GameLogic();
 
-        String result = logic.processMove("Лондон");
+        MoveResult result = logic.processMove("Лондон");
 
-        assertTrue(result.contains("відсутнє"));
+        assertEquals(MoveStatus.ERROR, result.status());
+        assertTrue(result.message().contains("відсутнє"));
     }
 
     @Test
@@ -38,9 +40,10 @@ class GameLogicTest {
         GameLogic logic = new GameLogic();
 
         logic.processMove("Київ");
-        String result = logic.processMove("Київ");
+        MoveResult result = logic.processMove("Київ");
 
-        assertTrue(result.contains("вже використано"));
+        assertEquals(MoveStatus.ERROR, result.status());
+        assertTrue(result.message().contains("вже використано"));
     }
 
     @Test
@@ -57,9 +60,10 @@ class GameLogicTest {
         GameLogic logic = new GameLogic();
 
         logic.processMove("Київ");
-        String result = logic.processMove("київ");
+        MoveResult result = logic.processMove("київ");
 
-        assertTrue(result.contains("вже використано"));
+        assertEquals(MoveStatus.ERROR, result.status());
+        assertTrue(result.message().contains("вже використано"));
     }
 
     @Test
@@ -75,8 +79,9 @@ class GameLogicTest {
     void shouldFinishGameWhenUserTypesGiveUp() {
         GameLogic logic = new GameLogic();
 
-        logic.processMove("здаюсь");
+        MoveResult result = logic.processMove("здаюсь");
 
+        assertEquals(MoveStatus.COMPUTER_WON, result.status());
         assertTrue(logic.isGameOver());
         assertTrue(logic.isUserGaveUp());
         assertEquals("Комп'ютер переміг!", logic.getGameResult());

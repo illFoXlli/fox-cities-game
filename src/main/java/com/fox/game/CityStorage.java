@@ -12,24 +12,22 @@ import java.util.Set;
 
 public class CityStorage {
 
-    public List<String> loadCities() {
+    public static List<String> loadCities() {
         Set<String> cities = new LinkedHashSet<>();
+        InputStream is = CityStorage.class.getClassLoader().getResourceAsStream("cities.txt");
 
-        try {
-            InputStream is = getClass().getClassLoader().getResourceAsStream("cities.txt");
+        if (is == null) {
+            throw new CityStorageException("Файл cities.txt не знайдено");
+        }
 
-            if (is == null) {
-                throw new CityStorageException("Файл cities.txt не знайдено");
-            }
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            String line;
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String city = line.trim();
+            while ((line = reader.readLine()) != null) {
+                String city = line.trim();
 
-                    if (!city.isEmpty()) {
-                        cities.add(city);
-                    }
+                if (!city.isEmpty()) {
+                    cities.add(city);
                 }
             }
         } catch (IOException e) {
@@ -38,5 +36,4 @@ public class CityStorage {
 
         return new ArrayList<>(cities);
     }
-
 }

@@ -1,6 +1,8 @@
 package com.fox.ui;
 
 import com.fox.game.GameLogic;
+import com.fox.game.MoveResult;
+import com.fox.game.MoveStatus;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -123,7 +125,7 @@ public class GameWindow extends JFrame {
     }
 
     private JLabel createLandscapeLabel() {
-        JLabel label = new JLabel("Додайте landscape-1.jpeg ... landscape-5.jpeg", SwingConstants.CENTER);
+        JLabel label = new JLabel("", SwingConstants.CENTER);
         label.setPreferredSize(new Dimension(360, 250));
         label.setOpaque(true);
         label.setBackground(new Color(190, 235, 205));
@@ -170,20 +172,15 @@ public class GameWindow extends JFrame {
     private void handleMove() {
         String userInput = inputField.getText();
 
-        String response = gameLogic.processMove(userInput);
+        MoveResult result = gameLogic.processMove(userInput);
 
-        if (gameLogic.isGameOver()) {
-            if (gameLogic.isUserGaveUp()) {
-                finishGame(COMPUTER_WON_MESSAGE, gameLogic.getGameResult(), LOSE_ICON_NAME);
-            } else {
-                finishGame("Ви перемогли!", gameLogic.getGameResult(), WIN_ICON_NAME);
-            }
+        if (finishGameIfNeeded(result)) {
             return;
         }
 
-        if (isError(response)) {
+        if (result.status() == MoveStatus.ERROR) {
             resultLabel.setForeground(Color.RED);
-            resultLabel.setText(toHtml(response));
+            resultLabel.setText(toHtml(result.message()));
             updateScoreLabel();
             inputField.selectAll();
             inputField.requestFocusInWindow();
@@ -191,9 +188,9 @@ public class GameWindow extends JFrame {
         } else {
             resultLabel.setForeground(new Color(0, 100, 0));
             resultLabel.setText(toHtml(
-                    "Ваше місто: " + gameLogic.getLastUserCity()
+                    "Ваше місто: " + result.userCity()
                     + "<br>"
-                    + response
+                    + result.message()
             ));
         }
 
@@ -203,23 +200,22 @@ public class GameWindow extends JFrame {
     }
 
     private void handleGiveUp() {
-        gameLogic.processMove("здаюсь");
-
-        if (gameLogic.isGameOver()) {
-            if (gameLogic.isUserGaveUp()) {
-                finishGame(COMPUTER_WON_MESSAGE, gameLogic.getGameResult(), LOSE_ICON_NAME);
-            } else {
-                finishGame("Ви перемогли!", gameLogic.getGameResult(), WIN_ICON_NAME);
-            }
-        }
+        MoveResult result = gameLogic.processMove("здаюсь");
+        finishGameIfNeeded(result);
     }
 
-    private boolean isError(String response) {
-        return response.contains("відсутнє") ||
-               response.contains("вже використано") ||
-               response.contains("Має бути") ||
-               response.contains("Введіть") ||
-               response.contains("Список міст");
+    private boolean finishGameIfNeeded(MoveResult result) {
+        if (!result.gameOver()) {
+            return false;
+        }
+
+        if (result.status() == MoveStatus.COMPUTER_WON) {
+            finishGame(COMPUTER_WON_MESSAGE, result.message(), LOSE_ICON_NAME);
+        } else {
+            finishGame("Ви перемогли!", result.message(), WIN_ICON_NAME);
+        }
+
+        return true;
     }
 
     private String toHtml(String text) {
@@ -308,7 +304,7 @@ public class GameWindow extends JFrame {
         Icon landscapeIcon = loadLandscapeIcon();
 
         if (landscapeIcon == null) {
-            label.setText("Додайте landscape-1.jpeg ... landscape-5.jpeg");
+            label.setText("Пейзаж недоступний");
             label.setIcon(null);
             return;
         }
